@@ -1,9 +1,24 @@
 name: Remind
 
-on: [push]
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1 * *'
 
 jobs:
   run-remind:
     runs-on: ubuntu-latest
     steps:
-      - run: cal $(date +"%m %Y") | awk 'NF {DAYS = $NF}; END {print DAYS}'
+      - name: Count days
+        id: count-days
+        run: |
+          COUNT=$(date -d "-$(date +%d) days +1 month" +%d)
+          echo count=$COUNT >> $GITHUB_OUTPUT
+      - uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "今月は ${{ steps.count-days.outputs.count }} 日までだよ！"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
