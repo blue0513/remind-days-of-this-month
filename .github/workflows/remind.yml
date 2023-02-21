@@ -1,0 +1,9 @@
+name: Remind
+
+on: [push]
+
+jobs:
+  run-remind:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cal $(date +"%m %Y") | awk 'NF {DAYS = $NF}; END {print DAYS}'
